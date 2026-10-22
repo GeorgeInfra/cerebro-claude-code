@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#09060f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cérebro">
+<link rel="manifest" href="/ver/manifest.webmanifest">
+<link rel="icon" href="/ver/icone.svg" type="image/svg+xml">
+<title>Entrar no Cérebro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --texto: #f1eefa; --texto-2: #a9a2c0; --texto-3: #6f6888; --borda: rgba(255,255,255,.16); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; color: var(--texto); font: 15px/1.5 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background: radial-gradient(ellipse 70% 55% at 50% 45%, #1b1230 0%, #0d0916 55%, #09060f 100%); overflow: hidden;
+    display: grid; place-items: center; padding: 16px; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+  main { position: relative; width: min(380px, 100%); text-align: center; }
+  h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.045em;
+    background: linear-gradient(180deg, #fff, #cbb8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { margin: 4px 0 28px; color: var(--texto-2); }
+  form { background: rgba(20,15,32,.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--borda);
+    border-radius: 20px; padding: 22px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+  label { display: block; font-size: 13px; color: var(--texto-2); margin-bottom: 14px; }
+  input { display: block; width: 100%; margin-top: 6px; height: 48px; border-radius: 12px; border: 1px solid var(--borda);
+    background: rgba(255,255,255,.04); color: var(--texto); padding: 0 14px; font: inherit; font-size: 16px; outline: none; }
+  input:focus { border-color: rgba(183,156,255,.6); box-shadow: 0 0 0 4px rgba(139,92,246,.15); }
+  button { width: 100%; height: 48px; border: 0; border-radius: 12px; cursor: pointer; font: inherit; font-weight: 600; font-size: 15.5px;
+    color: #fff; background: linear-gradient(180deg, #a78bfa, #7c3aed); margin-top: 4px; transition: filter .2s; }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: .6; cursor: default; }
+  .erro { min-height: 20px; color: #ff8fa3; font-size: 13px; margin: 0 0 8px; }
+  .nota { margin-top: 16px; font-size: 12.5px; color: var(--texto-3); }
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main>
+  <h1>Cérebro</h1>
+  <p class="sub">A memória comum das suas IAs</p>
+  <form id="f" autocomplete="on">
+    <label>Usuário<input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label>Senha<input id="s" name="password" type="password" autocomplete="current-password" required autofocus></label>
+    <div class="erro" id="erro" role="alert"></div>
+    <button id="b" type="submit">Entrar</button>
+  </form>
+  <p class="nota">Você fica conectado neste aparelho por 6 meses.</p>
+</main>
+<script>
+// Formulário
+const f = document.getElementById('f'), erro = document.getElementById('erro'), b = document.getElementById('b');
+f.onsubmit = async e => {
+  e.preventDefault(); b.disabled = true; erro.textContent = '';
+  try {
+    const r = await fetch('/ver/api/entrar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: document.getElementById('u').value, senha: document.getElementById('s').value }) });
+    if (r.ok) { location.href = '/ver' + location.hash; return; }
+    const j = await r.json().catch(() => ({}));
+    erro.textContent = j.erro || 'Não consegui entrar.';
+  } catch (e2) { erro.textContent = 'Sem conexão com o servidor.'; }
+  b.disabled = false;
+};
+
+// Fundo: poeira colorida girando devagar, no mesmo espírito do cérebro
+const c = document.getElementById('c'), ctx = c.getContext('2d');
+const cores = ['#3fe6a4', '#2fd0cf', '#6c8dff', '#7a5cff', '#b36bff', '#ff6fc0', '#ff5368', '#ff9a3c'];
+let W, H, pts = [];
+function medir() {
+  const dpr = Math.min(devicePixelRatio, 2); W = innerWidth; H = innerHeight;
+  c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  pts = Array.from({ length: Math.min(900, Math.round(W * H / 1400)) }, () => {
+    const a = Math.random() * Math.PI * 2, r = Math.pow(Math.random(), .45);
+    return { a, r, v: (.0006 + Math.random() * .0012) * (Math.random() < .5 ? 1 : -1), s: Math.random() * 1.6 + .3,
+      c: cores[Math.floor((a / (Math.PI * 2)) * cores.length) % cores.length], o: .2 + Math.random() * .6 };
+  });
+}
+function quadro() {
+  ctx.clearRect(0, 0, W, H);
+  const rx = Math.min(W * .48, 520), ry = Math.min(H * .32, 300), cx = W / 2, cy = H * .47;
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of pts) {
+    p.a += p.v;
+    ctx.globalAlpha = p.o; ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.arc(cx + Math.cos(p.a) * rx * p.r, cy + Math.sin(p.a) * ry * p.r, p.s, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(quadro);
+}
+addEventListener('resize', medir); medir(); quadro();
+</script>
+</body>
+</html>

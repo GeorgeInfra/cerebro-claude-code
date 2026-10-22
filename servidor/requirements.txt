@@ -1,0 +1,4 @@
+# Testado com mcp 1.30, uvicorn 0.54, starlette 1.9 (Python 3.12). O MCP SDK 2.x muda a API: fique no 1.x.
+mcp<2
+uvicorn
+starlette

@@ -1,0 +1,11 @@
+# Nunca sobem: credenciais, estado e dados do servidor
+.env
+tokens.json
+usuarios.json
+segredo.key
+atividade.jsonl
+alertas-estado.json
+estado-*.json
+venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,25 @@
+# Troque cerebro.seudominio.com.br pelo seu subdomínio (o DNS dele tem que apontar para a VPS).
+# Se mudar as portas no .env, mude aqui também.
+cerebro.seudominio.com.br {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		-Server
+	}
+	handle /ver* {
+		header {
+			X-Robots-Tag "noindex, nofollow"
+			X-Frame-Options "DENY"
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'"
+		}
+		reverse_proxy 127.0.0.1:8766
+	}
+	handle {
+		# Sem reescrever o Host, o MCP SDK responde "421 Invalid Host header".
+		reverse_proxy 127.0.0.1:8765 {
+			header_up Host 127.0.0.1:8765
+		}
+	}
+}

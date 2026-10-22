@@ -1,0 +1,12 @@
+[Unit]
+Description=Cerebro compartilhado (MCP)
+After=network-online.target
+[Service]
+EnvironmentFile=/opt/cerebro-mcp/.env
+Environment=CEREBRO_MCP_DIR=/opt/cerebro-mcp
+WorkingDirectory=/opt/cerebro-mcp
+ExecStart=/opt/cerebro-mcp/venv/bin/python servidor.py
+Restart=always
+RestartSec=3
+[Install]
+WantedBy=multi-user.target
