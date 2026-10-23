@@ -35,3 +35,7 @@ O servidor cobra organização: para mudar uma nota que já existe, a IA tem que
 ## Instalar
 
 Passo a passo em [INSTALAR.md](INSTALAR.md). Você precisa de uma VPS Ubuntu/Debian e de um subdomínio apontando para ela. A instalação leva uns 15 minutos.
+
+## Licença
+
+[MIT](LICENSE): use, copie e modifique à vontade, mantendo o aviso de copyright.
